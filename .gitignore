@@ -1,0 +1,27 @@
+# .NET
+**/bin/
+**/obj/
+
+# User-specific files
+*.user
+*.suo
+.vs/
+
+# Environment / secrets
+.env
+.env.*
+appsettings.Local.json
+
+# PostgreSQL / local secrets
+secrets.json
+
+# Node
+**/node_modules/
+**/dist/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
