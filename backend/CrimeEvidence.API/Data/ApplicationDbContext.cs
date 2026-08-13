@@ -14,4 +14,6 @@ public class ApplicationDbContext : DbContext
     public DbSet<Case> Cases => Set<Case>();
 
     public DbSet<Evidence> Evidence => Set<Evidence>();
+
+    public DbSet<User> Users { get; set; }
 }
