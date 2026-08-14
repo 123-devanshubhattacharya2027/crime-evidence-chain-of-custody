@@ -103,10 +103,7 @@ public class AuthController : ControllerBase
         });
     }
 
-    // ===============================
-    // GENERATE JWT
-    // ===============================
-
+ 
     private string GenerateJwtToken(User user)
     {
         var jwtKey = _configuration["Jwt:Key"];

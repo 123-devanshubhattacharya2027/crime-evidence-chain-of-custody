@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Text;
+using CrimeEvidence.API.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,9 +50,16 @@ builder.Services.AddAuthentication(
     });
 
 
-
-builder.Services.AddAuthorization();
-
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("SensitiveCaseAccess", policy =>
+    {
+        policy.RequireRole(
+            Roles.Admin,
+            Roles.SeniorOfficer
+        );
+    });
+});
 
 builder.Services.AddEndpointsApiExplorer();
 
