@@ -90,3 +90,9 @@ https://localhost:<PORT>/swagger
 ##  Goal
 
 Build a secure, real-world backend for managing **criminal cases, evidence, investigators, forensic workflows, and role-based access**.
+
+### Day 3 — Role-Based Access Control ✅
+- Added Admin, Investigating Officer, Evidence Officer, Forensic Officer and Senior Officer roles
+- Implemented role-based and policy-based authorization
+- Added protected RBAC endpoints
+- Tested 200, 401 and 403 authorization scenarios
