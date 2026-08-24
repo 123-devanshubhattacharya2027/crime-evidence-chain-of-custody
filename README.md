@@ -91,6 +91,40 @@ https://localhost:<PORT>/swagger
 
 Build a secure, real-world backend for managing **criminal cases, evidence, investigators, forensic workflows, and role-based access**.
 
+## Day 4 – Case Management (Completed)
+
+Implemented a complete **Case Management** module with Role-Based Access Control (RBAC) using **ASP.NET Core Web API, Entity Framework Core, and PostgreSQL**.
+
+### Features Implemented
+
+- Create crime cases
+- View all cases
+- View a case by ID
+- Search cases by Case Number or Title
+- Update case details
+- Delete cases (Admin only)
+- Swagger API testing completed
+
+### API Endpoints
+
+| Method | Endpoint | Access |
+|--------|----------|--------|
+| POST | `/api/cases` | Admin, Investigating Officer |
+| GET | `/api/cases` | Authenticated Users |
+| GET | `/api/cases/{id}` | Authenticated Users |
+| GET | `/api/cases/search?query=` | Authenticated Users |
+| PUT | `/api/cases/{id}` | Admin, Investigating Officer |
+| DELETE | `/api/cases/{id}` | Admin |
+
+### Tech Used
+
+- ASP.NET Core Web API
+- Entity Framework Core
+- PostgreSQL
+- JWT Authentication
+- Role-Based Authorization
+- Swagger/OpenAPI
+
 ### Day 3 — Role-Based Access Control ✅
 - Added Admin, Investigating Officer, Evidence Officer, Forensic Officer and Senior Officer roles
 - Implemented role-based and policy-based authorization
