@@ -1,20 +1,32 @@
-namespace CrimeEvidence.API.Models;
+using System.ComponentModel.DataAnnotations;
 
-public class Case
+namespace CrimeEvidence.API.Models
 {
-    public int CaseId { get; set; }
+    public class Case
+    {
+        [Key]
+        public int CaseId { get; set; }
 
-    public string CaseNumber { get; set; } = string.Empty;
+        [Required]
+        [MaxLength(30)]
+        public string CaseNumber { get; set; } = "";
 
-    public string CrimeType { get; set; } = string.Empty;
+        [Required]
+        [MaxLength(150)]
+        public string Title { get; set; } = "";
 
-    public string Description { get; set; } = string.Empty;
+        [Required]
+        public string Description { get; set; } = "";
 
-    public string CrimeLocation { get; set; } = string.Empty;
+        [Required]
+        public string CrimeType { get; set; } = "";
 
-    public DateTime IncidentDate { get; set; }
+        public string Location { get; set; } = "";
 
-    public string Status { get; set; } = "OPEN";
+        public DateTime IncidentDate { get; set; }
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public string Status { get; set; } = "Open";
+
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    }
 }
