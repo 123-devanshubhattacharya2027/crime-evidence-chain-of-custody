@@ -125,6 +125,114 @@ Implemented a complete **Case Management** module with Role-Based Access Control
 - Role-Based Authorization
 - Swagger/OpenAPI
 
+  Day 5 focused on building the complete Evidence Management module for the Crime Evidence Management System using ASP.NET Core Web API, Entity Framework Core, PostgreSQL, and JWT authentication.
+
+Completed Work
+1. Evidence Entity
+
+Created the Evidence model with:
+
+Evidence ID
+Evidence Number
+Name
+Description
+Category
+Status
+Collection Date
+Collected By
+Storage Location
+Case ID
+2. Case–Evidence Relationship
+
+Implemented a one-to-many relationship:
+
+Case
+ └── Evidence
+      ├── Evidence 1
+      ├── Evidence 2
+      └── Evidence 3
+
+Each evidence record is linked to a specific case using CaseId.
+
+3. Database Integration
+
+Updated ApplicationDbContext and created the EF Core migration:
+
+AddEvidenceTable
+
+The migration was successfully applied to PostgreSQL.
+
+4. Evidence DTOs
+
+Created:
+
+CreateEvidenceDto
+UpdateEvidenceDto
+EvidenceResponseDto
+
+These DTOs separate API input/output models from the database entity.
+
+5. Evidence API
+
+Implemented the following endpoints:
+
+Method	Endpoint	Description
+POST	/api/Evidence	Create evidence
+GET	/api/Evidence	Get all evidence
+GET	/api/Evidence/{id}	Get evidence by ID
+GET	/api/Evidence/case/{caseId}	Get evidence for a case
+PUT	/api/Evidence/{id}	Update evidence
+DELETE	/api/Evidence/{id}	Delete evidence
+6. Validation
+
+Evidence creation verifies that the referenced case exists before saving the evidence record.
+
+Evidence numbers are automatically generated in the format:
+
+EV-2026-0001
+EV-2026-0002
+EV-2026-0003
+7. Search and Filtering
+
+Implemented evidence searching and filtering using query parameters.
+
+Examples:
+
+GET /api/Evidence?search=Knife
+GET /api/Evidence?category=Weapon
+GET /api/Evidence?status=Collected
+
+Combined filtering is also supported:
+
+GET /api/Evidence?search=Knife&category=Weapon&status=Collected
+
+Search checks evidence name and description.
+
+8. Authentication & Authorization
+
+Evidence APIs are protected using JWT authentication.
+
+Admin authentication and authorization were tested successfully through Swagger.
+
+9. API Testing
+
+The Evidence module was tested through Swagger, including:
+
+Evidence creation
+Retrieve all evidence
+Retrieve evidence by ID
+Retrieve evidence by case
+Evidence update
+Update verification
+Evidence deletion
+Delete verification
+Search
+Category filtering
+Status filtering
+Combined filtering
+
+All core Evidence Management operations were successfully verified.
+
 ### Day 3 — Role-Based Access Control ✅
 - Added Admin, Investigating Officer, Evidence Officer, Forensic Officer and Senior Officer roles
 - Implemented role-based and policy-based authorization
