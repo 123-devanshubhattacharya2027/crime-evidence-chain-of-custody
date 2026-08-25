@@ -233,8 +233,4 @@ Combined filtering
 
 All core Evidence Management operations were successfully verified.
 
-### Day 3 — Role-Based Access Control ✅
-- Added Admin, Investigating Officer, Evidence Officer, Forensic Officer and Senior Officer roles
-- Implemented role-based and policy-based authorization
-- Added protected RBAC endpoints
-- Tested 200, 401 and 403 authorization scenarios
+
