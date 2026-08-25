@@ -1,16 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace CrimeEvidence.API.Models
+namespace CrimeEvidence.API.DTOs.Evidence
 {
-    public class Evidence
+    public class CreateEvidenceDto
     {
-        [Key]
-        public int Id { get; set; }
-
-        [Required]
-        [MaxLength(50)]
-        public string EvidenceNumber { get; set; } = "";
-
         [Required]
         [MaxLength(150)]
         public string Name { get; set; } = "";
@@ -21,18 +14,11 @@ namespace CrimeEvidence.API.Models
         [MaxLength(50)]
         public string Category { get; set; } = "";
 
-        public string Status { get; set; } = "Collected";
-
-        public DateTime CollectedAt { get; set; } = DateTime.UtcNow;
-
         public string CollectedBy { get; set; } = "";
 
         public string StorageLocation { get; set; } = "";
 
-        // Foreign key
+        [Required]
         public int CaseId { get; set; }
-
-        // Navigation property
-        public Case Case { get; set; } = null!;
     }
 }

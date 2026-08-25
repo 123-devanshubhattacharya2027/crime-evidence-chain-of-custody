@@ -28,5 +28,9 @@ namespace CrimeEvidence.API.Models
         public string Status { get; set; } = "Open";
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        // One Case can have multiple Evidence records
+        public ICollection<Evidence> Evidences { get; set; }
+            = new List<Evidence>();
     }
 }
