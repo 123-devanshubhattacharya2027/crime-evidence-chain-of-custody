@@ -127,5 +127,198 @@ GET /api/Evidence?status=Collected
 
 All core Evidence APIs were successfully tested through Swagger.
 
+Chain of Custody
 
+Implemented a complete Chain of Custody module to maintain a secure audit trail of evidence transfers throughout an investigation.
+
+Features Implemented
+
+Added ChainOfCustody entity with a one-to-many relationship to Evidence.
+
+Created PostgreSQL table using EF Core Migration.
+
+Built Service Layer (IChainOfCustodyService and ChainOfCustodyService) for business logic.
+
+Added request and response DTOs for secure data transfer.
+
+Created protected REST APIs using JWT Authentication and Role-Based Authorization.
+
+Implemented automatic UTC timestamp generation for every custody event.
+
+Added business validations:
+
+Prevent invalid evidence references.
+
+Prevent self-transfers (FromUserId and ToUserId cannot be the same).
+
+Reject empty actions.
+
+Returned proper HTTP status codes (201, 400, 401, 403, 404).
+
+Database Changes
+
+New table: ChainOfCustodies
+
+Column
+
+	
+
+Purpose
+
+
+
+
+Id
+
+	
+
+Primary Key
+
+
+
+
+EvidenceId
+
+	
+
+Foreign Key
+
+
+
+
+FromUserId
+
+	
+
+Previous holder
+
+
+
+
+ToUserId
+
+	
+
+New holder
+
+
+
+
+Action
+
+	
+
+Custody action
+
+
+
+
+Location
+
+	
+
+Transfer location
+
+
+
+
+Notes
+
+	
+
+Additional remarks
+
+
+
+
+Timestamp
+
+	
+
+Auto-generated UTC timestamp
+
+API Endpoints
+
+Method
+
+	
+
+Endpoint
+
+	
+
+Purpose
+
+
+
+
+POST
+
+	
+
+/api/ChainOfCustody
+
+	
+
+Create a custody record
+
+
+
+
+GET
+
+	
+
+/api/ChainOfCustody/{id}
+
+	
+
+Get a single custody record
+
+
+
+
+GET
+
+	
+
+/api/ChainOfCustody/evidence/{evidenceId}
+
+	
+
+Get the complete custody timeline
+
+Testing Completed
+
+201 Created for successful custody creation.
+
+200 OK for timeline and single-record retrieval.
+
+404 Not Found for invalid evidence IDs.
+
+400 Bad Request for validation failures.
+
+401 Unauthorized for requests without JWT.
+
+403 Forbidden for unauthorized roles.
+
+Verified data persistence in PostgreSQL.
+
+Project Structure Added
+Models/
+ └── ChainOfCustody.cs
+
+DTOs/
+ └── ChainOfCustody/
+     ├── CreateCustodyDto.cs
+     └── CustodyResponseDto.cs
+
+Interfaces/
+ └── IChainOfCustodyService.cs
+
+Services/
+ └── ChainOfCustodyService.cs
+
+Controllers/
+ └── ChainOfCustodyController.cs
 
