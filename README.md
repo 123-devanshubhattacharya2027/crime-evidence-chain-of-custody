@@ -127,7 +127,7 @@ GET /api/Evidence?status=Collected
 
 All core Evidence APIs were successfully tested through Swagger.
 
-Chain of Custody
+Day 6 – Chain of Custody
 
 Implemented a complete Chain of Custody module to maintain a secure audit trail of evidence transfers throughout an investigation.
 
