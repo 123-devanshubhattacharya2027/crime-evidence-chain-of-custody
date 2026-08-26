@@ -5,26 +5,28 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using System.Text;
 using CrimeEvidence.API.Constants;
+using CrimeEvidence.API.Interfaces;
+using CrimeEvidence.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add controllers
 builder.Services.AddControllers();
 
+// Day 6: Register Chain of Custody Service
+builder.Services.AddScoped<IChainOfCustodyService, ChainOfCustodyService>();
 
-
+// PostgreSQL Database
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(
         builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
-
+// JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Key"];
 
 if (string.IsNullOrEmpty(jwtKey))
 {
-    throw new InvalidOperationException(
-        "JWT Key is not configured.");
+    throw new InvalidOperationException("JWT Key is not configured.");
 }
 
 builder.Services.AddAuthentication(
@@ -49,7 +51,7 @@ builder.Services.AddAuthentication(
         };
     });
 
-
+// Authorization Policies
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("SensitiveCaseAccess", policy =>
@@ -61,6 +63,7 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
+// Swagger
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(options =>
@@ -72,7 +75,7 @@ builder.Services.AddSwaggerGen(options =>
         Description = "Crime Evidence Management System API"
     });
 
-    // JWT Bearer authentication
+    // JWT Bearer Authentication
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -93,8 +96,7 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-
-
+// Development Configuration
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
@@ -111,14 +113,11 @@ if (app.Environment.IsDevelopment())
     });
 }
 
-
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
 app.UseAuthorization();
-
-
 
 app.MapControllers();
 

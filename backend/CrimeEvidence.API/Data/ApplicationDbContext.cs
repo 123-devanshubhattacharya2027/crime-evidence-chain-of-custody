@@ -15,17 +15,27 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<Evidence> Evidences => Set<Evidence>();
 
-    public DbSet<User> Users { get; set; }
+    public DbSet<User> Users { get; set; } = null!;
+
+    // Day 6: Chain of Custody table
+    public DbSet<ChainOfCustody> ChainOfCustodies => Set<ChainOfCustody>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // Case -> Evidence relationship
+        // Case -> Evidence (One Case has many Evidence items)
         modelBuilder.Entity<Evidence>()
             .HasOne(e => e.Case)
             .WithMany(c => c.Evidences)
             .HasForeignKey(e => e.CaseId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Evidence -> ChainOfCustody (One Evidence has many custody records)
+        modelBuilder.Entity<ChainOfCustody>()
+            .HasOne(c => c.Evidence)
+            .WithMany(e => e.ChainOfCustodies)
+            .HasForeignKey(c => c.EvidenceId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
