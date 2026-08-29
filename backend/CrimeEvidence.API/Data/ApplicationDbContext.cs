@@ -1,41 +1,49 @@
-using CrimeEvidence.API.Models;
 using Microsoft.EntityFrameworkCore;
+using CrimeEvidence.API.Models;
 
 namespace CrimeEvidence.API.Data;
 
 public class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext(
-        DbContextOptions<ApplicationDbContext> options)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
     }
 
-    public DbSet<Case> Cases => Set<Case>();
+    // DbSets
+    public DbSet<User> Users { get; set; }
+    public DbSet<Case> Cases { get; set; }
+    public DbSet<Evidence> Evidences { get; set; }
+    public DbSet<ChainOfCustody> ChainOfCustodies { get; set; }
+    public DbSet<ForensicExamination> ForensicExaminations { get; set; }
 
-    public DbSet<Evidence> Evidences => Set<Evidence>();
-
-    public DbSet<User> Users { get; set; } = null!;
-
-    // Day 6: Chain of Custody table
-    public DbSet<ChainOfCustody> ChainOfCustodies => Set<ChainOfCustody>();
+    public DbSet<ForensicDocument> ForensicDocuments { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // Case -> Evidence (One Case has many Evidence items)
+        // Case -> Evidence
         modelBuilder.Entity<Evidence>()
             .HasOne(e => e.Case)
             .WithMany(c => c.Evidences)
             .HasForeignKey(e => e.CaseId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        // Evidence -> ChainOfCustody (One Evidence has many custody records)
+        // Evidence -> ChainOfCustody
         modelBuilder.Entity<ChainOfCustody>()
             .HasOne(c => c.Evidence)
             .WithMany(e => e.ChainOfCustodies)
             .HasForeignKey(c => c.EvidenceId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        // Evidence -> ForensicExamination
+        modelBuilder.Entity<ForensicExamination>()
+            .HasOne(f => f.Evidence)
+            .WithMany(e => e.ForensicExaminations)
+            .HasForeignKey(f => f.EvidenceId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+
     }
 }

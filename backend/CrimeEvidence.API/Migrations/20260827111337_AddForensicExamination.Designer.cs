@@ -3,6 +3,7 @@ using System;
 using CrimeEvidence.API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CrimeEvidence.API.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260827111337_AddForensicExamination")]
+    partial class AddForensicExamination
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -159,39 +162,6 @@ namespace CrimeEvidence.API.Migrations
                     b.ToTable("Evidences");
                 });
 
-            modelBuilder.Entity("CrimeEvidence.API.Models.ForensicDocument", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FileType")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("ForensicExaminationId")
-                        .HasColumnType("integer");
-
-                    b.Property<DateTime>("UploadedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ForensicExaminationId");
-
-                    b.ToTable("ForensicDocuments");
-                });
-
             modelBuilder.Entity("CrimeEvidence.API.Models.ForensicExamination", b =>
                 {
                     b.Property<int>("Id")
@@ -291,17 +261,6 @@ namespace CrimeEvidence.API.Migrations
                     b.Navigation("Case");
                 });
 
-            modelBuilder.Entity("CrimeEvidence.API.Models.ForensicDocument", b =>
-                {
-                    b.HasOne("CrimeEvidence.API.Models.ForensicExamination", "ForensicExamination")
-                        .WithMany("Documents")
-                        .HasForeignKey("ForensicExaminationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ForensicExamination");
-                });
-
             modelBuilder.Entity("CrimeEvidence.API.Models.ForensicExamination", b =>
                 {
                     b.HasOne("CrimeEvidence.API.Models.Evidence", "Evidence")
@@ -323,11 +282,6 @@ namespace CrimeEvidence.API.Migrations
                     b.Navigation("ChainOfCustodies");
 
                     b.Navigation("ForensicExaminations");
-                });
-
-            modelBuilder.Entity("CrimeEvidence.API.Models.ForensicExamination", b =>
-                {
-                    b.Navigation("Documents");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,140 +1,103 @@
 using CrimeEvidence.API.Constants;
 using CrimeEvidence.API.Data;
-using CrimeEvidence.API.DTOs.Cases;
-using CrimeEvidence.API.Models;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+using CrimeEvidence.API.Interfaces;
+using CrimeEvidence.API.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 
-namespace CrimeEvidence.API.Controllers;
+var builder = WebApplication.CreateBuilder(args);
 
-[ApiController]
-[Route("api/cases")]
-[Authorize]
-public class CasesController : ControllerBase
-{
-    private readonly ApplicationDbContext _context;
+builder.Services.AddControllers();
 
-    public CasesController(ApplicationDbContext context)
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<IChainOfCustodyService, ChainOfCustodyService>();
+builder.Services.AddScoped<IForensicService, ForensicService>();
+
+var jwtKey = builder.Configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException("JWT Key is not configured.");
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
     {
-        _context = context;
-    }
-
-    // Create a new case
-    [HttpPost]
-    [Authorize(Roles = Roles.Admin + "," + Roles.InvestigatingOfficer)]
-    public async Task<IActionResult> CreateCase([FromBody] CreateCaseRequest request)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-
-        bool exists = await _context.Cases
-            .AnyAsync(c => c.CaseNumber == request.CaseNumber);
-
-        if (exists)
-            return BadRequest("Case number already exists.");
-
-        var crimeCase = new Case
+        options.TokenValidationParameters = new TokenValidationParameters
         {
-            CaseNumber = request.CaseNumber,
-            Title = request.Title,
-            Description = request.Description,
-            CrimeType = request.CrimeType,
-            Location = request.Location,
-
-            // FIX: Convert to UTC for PostgreSQL
-            IncidentDate = DateTime.SpecifyKind(request.IncidentDate, DateTimeKind.Utc),
-
-            Status = "Open"
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(jwtKey)),
+            ClockSkew = TimeSpan.Zero
         };
+    });
 
-        _context.Cases.Add(crimeCase);
-        await _context.SaveChangesAsync();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("SensitiveCaseAccess",
+        policy => policy.RequireRole(Roles.Admin, Roles.SeniorOfficer));
+});
 
-        return CreatedAtAction(nameof(GetCase), new { id = crimeCase.CaseId }, crimeCase);
-    }
+builder.Services.AddEndpointsApiExplorer();
 
-    // Get all cases
-    [HttpGet]
-    public async Task<IActionResult> GetAllCases()
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
     {
-        var cases = await _context.Cases
-            .OrderByDescending(c => c.CreatedAt)
-            .ToListAsync();
+        Title = "Crime Evidence API",
+        Version = "v1",
+        Description = "Crime Evidence Management System API"
+    });
 
-        return Ok(cases);
-    }
-
-    // Get a case by ID
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetCase(int id)
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        var crimeCase = await _context.Cases.FindAsync(id);
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter: Bearer {your JWT token}"
+    });
 
-        if (crimeCase == null)
-            return NotFound("Case not found.");
-
-        return Ok(crimeCase);
-    }
-
-    // Update a case
-    [HttpPut("{id}")]
-    [Authorize(Roles = Roles.Admin + "," + Roles.InvestigatingOfficer)]
-    public async Task<IActionResult> UpdateCase(int id, [FromBody] UpdateCaseRequest request)
+    options.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
-        var crimeCase = await _context.Cases.FindAsync(id);
-
-        if (crimeCase == null)
-            return NotFound("Case not found.");
-
-        crimeCase.Title = request.Title;
-        crimeCase.Description = request.Description;
-        crimeCase.CrimeType = request.CrimeType;
-        crimeCase.Location = request.Location;
-
-        // FIX: Convert to UTC for PostgreSQL
-        crimeCase.IncidentDate = DateTime.SpecifyKind(request.IncidentDate, DateTimeKind.Utc);
-
-        crimeCase.Status = request.Status;
-
-        await _context.SaveChangesAsync();
-
-        return Ok(crimeCase);
-    }
-
-    // Delete a case
-    [HttpDelete("{id}")]
-    [Authorize(Roles = Roles.Admin)]
-    public async Task<IActionResult> DeleteCase(int id)
-    {
-        var crimeCase = await _context.Cases.FindAsync(id);
-
-        if (crimeCase == null)
-            return NotFound("Case not found.");
-
-        _context.Cases.Remove(crimeCase);
-        await _context.SaveChangesAsync();
-
-        return Ok(new
         {
-            message = "Case deleted successfully."
-        });
-    }
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
 
-    // Search cases
-    [HttpGet("search")]
-    public async Task<IActionResult> Search([FromQuery] string query)
-    {
-        if (string.IsNullOrWhiteSpace(query))
-            return BadRequest("Search query is required.");
+var app = builder.Build();
 
-        var result = await _context.Cases
-            .Where(c =>
-                c.CaseNumber.Contains(query) ||
-                c.Title.Contains(query))
-            .OrderByDescending(c => c.CreatedAt)
-            .ToListAsync();
-
-        return Ok(result);
-    }
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.MapGet("/", () => "Crime Evidence API is running!");
+
+app.Run();

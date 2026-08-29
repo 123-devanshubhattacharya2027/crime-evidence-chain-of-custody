@@ -39,5 +39,9 @@ namespace CrimeEvidence.API.Models
         // Day 6: One Evidence can have many Chain of Custody records
         public ICollection<ChainOfCustody> ChainOfCustodies { get; set; }
             = new List<ChainOfCustody>();
+
+            // Day 7: One Evidence can have many Forensic Examinations
+public ICollection<ForensicExamination> ForensicExaminations { get; set; }
+    = new List<ForensicExamination>();
     }
 }
