@@ -322,3 +322,34 @@ Services/
 Controllers/
  └── ChainOfCustodyController.cs
 
+
+ Day 7 – Forensic Module ✅
+
+Implemented the Forensic Examination & Document Management module with secure JWT authentication.
+
+Features
+
+Create forensic examinations linked to evidence.
+
+View and update examination records.
+
+Upload forensic documents (PDF/images).
+
+Retrieve uploaded documents.
+
+Fully tested using Swagger.
+
+Endpoints
+
+POST /api/Forensic
+
+GET /api/Forensic/{id}
+
+GET /api/Forensic/evidence/{evidenceId}
+
+PUT /api/Forensic/{id}
+
+POST /api/Forensic/documents/upload
+
+GET /api/Forensic/{id}/documents
+
