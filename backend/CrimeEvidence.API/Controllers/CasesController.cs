@@ -1,103 +1,155 @@
-using CrimeEvidence.API.Constants;
 using CrimeEvidence.API.Data;
-using CrimeEvidence.API.Interfaces;
-using CrimeEvidence.API.Services;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using CrimeEvidence.API.Models;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.OpenApi.Models;
-using System.Text;
 
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddControllers();
-
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddScoped<IChainOfCustodyService, ChainOfCustodyService>();
-builder.Services.AddScoped<IForensicService, ForensicService>();
-
-var jwtKey = builder.Configuration["Jwt:Key"]
-    ?? throw new InvalidOperationException("JWT Key is not configured.");
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(jwtKey)),
-            ClockSkew = TimeSpan.Zero
-        };
-    });
-
-builder.Services.AddAuthorization(options =>
+namespace CrimeEvidence.API.Controllers
 {
-    options.AddPolicy("SensitiveCaseAccess",
-        policy => policy.RequireRole(Roles.Admin, Roles.SeniorOfficer));
-});
-
-builder.Services.AddEndpointsApiExplorer();
-
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
+    [ApiController]
+    [Route("api/[controller]")]
+    public class CasesController : ControllerBase
     {
-        Title = "Crime Evidence API",
-        Version = "v1",
-        Description = "Crime Evidence Management System API"
-    });
+        private readonly ApplicationDbContext _context;
 
-    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Name = "Authorization",
-        Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
-        BearerFormat = "JWT",
-        In = ParameterLocation.Header,
-        Description = "Enter: Bearer {your JWT token}"
-    });
-
-    options.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
+        public CasesController(ApplicationDbContext context)
         {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            Array.Empty<string>()
+            _context = context;
         }
-    });
-});
 
-var app = builder.Build();
+        // GET: api/Cases
+        [HttpGet]
+        public async Task<IActionResult> GetCases()
+        {
+            var cases = await _context.Cases
+                .Include(c => c.Evidences)
+                .OrderByDescending(c => c.CaseId)
+                .Select(c => new
+                {
+                    id = c.CaseId,
+                    caseNumber = c.CaseNumber,
+                    title = c.Title,
+                    description = c.Description,
+                    status = c.Status,
+                    createdAt = c.CreatedAt,
+                    evidenceCount = c.Evidences.Count
+                })
+                .ToListAsync();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI();
+            return Ok(cases);
+        }
+
+        // GET: api/Cases/5
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetCase(int id)
+        {
+            var crimeCase = await _context.Cases
+                .Include(c => c.Evidences)
+                .Where(c => c.CaseId == id)
+                .Select(c => new
+                {
+                    id = c.CaseId,
+                    caseNumber = c.CaseNumber,
+                    title = c.Title,
+                    description = c.Description,
+                    status = c.Status,
+                    createdAt = c.CreatedAt,
+                    evidences = c.Evidences.Select(e => new
+                    {
+                        id = e.Id,
+                        evidenceNumber = e.EvidenceNumber,
+                        name = e.Name,
+                        category = e.Category,
+                        status = e.Status,
+                        storageLocation = e.StorageLocation
+                    }).ToList()
+                })
+                .FirstOrDefaultAsync();
+
+            if (crimeCase == null)
+                return NotFound();
+
+            return Ok(crimeCase);
+        }
+
+        // GET: api/Cases/search?query=theft
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchCases([FromQuery] string query = "")
+        {
+            var casesQuery = _context.Cases.AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(query))
+            {
+                casesQuery = casesQuery.Where(c =>
+                    c.Title.Contains(query) ||
+                    c.CaseNumber.Contains(query) ||
+                    c.Status.Contains(query));
+            }
+
+            var results = await casesQuery
+                .OrderByDescending(c => c.CaseId)
+                .Select(c => new
+                {
+                    id = c.CaseId,
+                    caseNumber = c.CaseNumber,
+                    title = c.Title,
+                    status = c.Status,
+                    createdAt = c.CreatedAt
+                })
+                .ToListAsync();
+
+            return Ok(results);
+        }
+
+        // POST: api/Cases
+        [HttpPost]
+        public async Task<ActionResult<Case>> CreateCase([FromBody] Case crimeCase)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            _context.Cases.Add(crimeCase);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetCase), new { id = crimeCase.CaseId }, crimeCase);
+        }
+
+        // PUT: api/Cases/5
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateCase(int id, [FromBody] Case updatedCase)
+        {
+            if (id != updatedCase.CaseId)
+                return BadRequest();
+
+            _context.Entry(updatedCase).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!await _context.Cases.AnyAsync(c => c.CaseId == id))
+                    return NotFound();
+
+                throw;
+            }
+
+            return NoContent();
+        }
+
+        // DELETE: api/Cases/5
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteCase(int id)
+        {
+            var crimeCase = await _context.Cases.FindAsync(id);
+
+            if (crimeCase == null)
+                return NotFound();
+
+            _context.Cases.Remove(crimeCase);
+            await _context.SaveChangesAsync();
+
+            return NoContent();
+        }
+    }
 }
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.MapGet("/", () => "Crime Evidence API is running!");
-
-app.Run();

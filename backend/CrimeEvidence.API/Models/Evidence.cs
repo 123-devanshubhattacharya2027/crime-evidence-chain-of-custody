@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using System.Collections.Generic;
 
 namespace CrimeEvidence.API.Models
 {
@@ -33,15 +32,15 @@ namespace CrimeEvidence.API.Models
         // Foreign Key
         public int CaseId { get; set; }
 
-        // Navigation Property (One Evidence belongs to one Case)
+        // Navigation Property
         public Case Case { get; set; } = null!;
 
-        // Day 6: One Evidence can have many Chain of Custody records
+        // Chain of Custody
         public ICollection<ChainOfCustody> ChainOfCustodies { get; set; }
             = new List<ChainOfCustody>();
 
-            // Day 7: One Evidence can have many Forensic Examinations
-public ICollection<ForensicExamination> ForensicExaminations { get; set; }
-    = new List<ForensicExamination>();
+        // Forensic Examinations
+        public ICollection<ForensicExamination> ForensicExaminations { get; set; }
+            = new List<ForensicExamination>();
     }
 }
