@@ -353,3 +353,31 @@ POST /api/Forensic/documents/upload
 
 GET /api/Forensic/{id}/documents
 
+
+Docker Setup (Day 9)
+
+Containerized the Crime Evidence Chain of Custody API using Docker for a consistent development and deployment environment.
+
+What I implemented
+
+Multi-stage Dockerfile using .NET 8 SDK and ASP.NET Runtime.
+
+Optimized builds with .dockerignore (bin/, obj/ excluded).
+
+Docker image creation and container deployment.
+
+Port mapping (localhost:5087 → container:8080).
+
+Added docker-compose.yml for simplified multi-container setup.
+
+Verified the API by running Swagger inside the Docker container.
+
+Docker Commands Used
+docker build -t crime-evidence-api .
+docker run -d --name crime-api -p 5087:8080 crime-evidence-api
+docker ps
+docker images
+Docker Workflow
+
+This setup ensures the application runs consistently across different environments without requiring a local .NET installation on the deployment machine.
+
