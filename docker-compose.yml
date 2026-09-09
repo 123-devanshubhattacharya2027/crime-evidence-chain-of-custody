@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: crime-postgres
+    restart: always
+    environment:
+      POSTGRES_DB: CrimeEvidenceDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/CrimeEvidence.API/Dockerfile
+    container_name: crime-api
+    depends_on:
+      - postgres
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=CrimeEvidenceDB;Username=postgres;Password=postgres123
+    ports:
+      - "5000:8080"
+
+volumes:
+  postgres_data:

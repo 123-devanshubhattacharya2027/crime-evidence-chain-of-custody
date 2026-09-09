@@ -3,7 +3,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+<<<<<<< HEAD
 using System.Text.Json.Serialization;
+=======
+>>>>>>> 0b7c4bd (Day 9: Add Docker support, middleware, validation filter and frontend setup)
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,12 +15,16 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Controllers
+<<<<<<< HEAD
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
         options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
+=======
+builder.Services.AddControllers();
+>>>>>>> 0b7c4bd (Day 9: Add Docker support, middleware, validation filter and frontend setup)
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -61,9 +68,14 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+<<<<<<< HEAD
 // Middleware Order
 app.UseHttpsRedirection();
 app.UseCors("Frontend");
+=======
+app.UseCors("Frontend");
+
+>>>>>>> 0b7c4bd (Day 9: Add Docker support, middleware, validation filter and frontend setup)
 app.UseAuthentication();
 app.UseAuthorization();
 

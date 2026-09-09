@@ -3,6 +3,7 @@ using CrimeEvidence.API.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+<<<<<<< HEAD
 namespace CrimeEvidence.API.Controllers
 {
     [ApiController]
@@ -151,5 +152,108 @@ namespace CrimeEvidence.API.Controllers
 
             return NoContent();
         }
+=======
+namespace CrimeEvidence.API.Controllers;
+
+[ApiController]
+[Route("api/[controller]")]
+public class CasesController : ControllerBase
+{
+    private readonly ApplicationDbContext _context;
+
+    public CasesController(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
+    // GET: api/cases
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Case>>> GetCases()
+    {
+        return await _context.Cases
+            .Include(c => c.Evidences)
+            .OrderByDescending(c => c.CaseId)
+            .ToListAsync();
+    }
+
+    // GET: api/cases/5
+    [HttpGet("{id}")]
+    public async Task<ActionResult<Case>> GetCase(int id)
+    {
+        var crimeCase = await _context.Cases
+            .Include(c => c.Evidences)
+            .FirstOrDefaultAsync(c => c.CaseId == id);
+
+        if (crimeCase == null)
+            return NotFound();
+
+        return crimeCase;
+    }
+
+    // GET: api/cases/search?query=theft
+    [HttpGet("search")]
+    public async Task<ActionResult<IEnumerable<Case>>> SearchCases([FromQuery] string query)
+    {
+        if (string.IsNullOrWhiteSpace(query))
+            return await _context.Cases.ToListAsync();
+
+        var results = await _context.Cases
+            .Where(c =>
+                c.Title.Contains(query) ||
+                c.CaseNumber.Contains(query) ||
+                c.Status.Contains(query))
+            .ToListAsync();
+
+        return results;
+    }
+
+    // POST: api/cases
+    [HttpPost]
+    public async Task<ActionResult<Case>> CreateCase(Case crimeCase)
+    {
+        _context.Cases.Add(crimeCase);
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetCase), new { id = crimeCase.CaseId }, crimeCase);
+    }
+
+    // PUT: api/cases/5
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateCase(int id, Case updatedCase)
+    {
+        if (id != updatedCase.CaseId)
+            return BadRequest();
+
+        _context.Entry(updatedCase).State = EntityState.Modified;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            if (!await _context.Cases.AnyAsync(c => c.CaseId == id))
+                return NotFound();
+
+            throw;
+        }
+
+        return NoContent();
+    }
+
+    // DELETE: api/cases/5
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteCase(int id)
+    {
+        var crimeCase = await _context.Cases.FindAsync(id);
+
+        if (crimeCase == null)
+            return NotFound();
+
+        _context.Cases.Remove(crimeCase);
+        await _context.SaveChangesAsync();
+
+        return NoContent();
+>>>>>>> 0b7c4bd (Day 9: Add Docker support, middleware, validation filter and frontend setup)
     }
 }
