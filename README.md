@@ -1,163 +1,350 @@
 Crime Evidence Management System
 
-A secure crime case and evidence management backend built with C#, ASP.NET Core Web API, PostgreSQL, Entity Framework Core, JWT, and Swagger.
+A secure Crime Evidence Management Backend built with C#, ASP.NET Core Web API, PostgreSQL, Entity Framework Core, JWT Authentication, and Docker. The system enables law enforcement agencies to manage crime cases, evidence, chain of custody records, and forensic examinations through a secure REST API.
 
-Progress
-Day	Work	Status
-Day 1	Foundation & PostgreSQL Database	✅
-Day 2	JWT Authentication	✅
-Day 3	Role-Based Access Control	✅
-Day 4	Case Management	✅
-Day 5	Evidence Management	✅
-Crime Evidence Management System
+Project Overview
 
-A secure crime case and evidence management backend built with C#, ASP.NET Core Web API, PostgreSQL, Entity Framework Core, JWT, and Swagger.
+This project simulates a real-world digital evidence management platform used by police departments and forensic laboratories. It focuses on secure authentication, role-based access control, complete evidence tracking, and a verifiable chain of custody.
 
-Progress
-Day	Work	Status
-Day 1	Foundation & PostgreSQL Database	✅
-Day 2	JWT Authentication	✅
-Day 3	Role-Based Access Control	✅
-Day 4	Case Management	✅
-Day 5	Evidence Management	✅
+Tech Stack
 
-Completed Work
-Day 1 — Foundation
-ASP.NET Core Web API setup
-PostgreSQL database integration
+C# / .NET 8
+
+PostgreSQL
+
 Entity Framework Core
-Case and User models
-Database migrations
-Day 2 — Authentication
-User registration and login
-BCrypt password hashing
-JWT token generation
-Protected API authentication
-Day 3 — RBAC
 
-Implemented roles:
+JWT Authentication
+
+Swagger
+
+Docker
+
+Project Architecture
+Development Progress
+
+Day
+
+	
+
+Module
+
+	
+
+Status
+
+
+
+
+Day 1
+
+	
+
+Foundation & Database
+
+	
+
+✅
+
+
+
+
+Day 2
+
+	
+
+JWT Authentication
+
+	
+
+✅
+
+
+
+
+Day 3
+
+	
+
+Role-Based Access Control
+
+	
+
+✅
+
+
+
+
+Day 4
+
+	
+
+Case Management
+
+	
+
+✅
+
+
+
+
+Day 5
+
+	
+
+Evidence Management
+
+	
+
+✅
+
+
+
+
+Day 6
+
+	
+
+Chain of Custody
+
+	
+
+✅
+
+
+
+
+Day 7
+
+	
+
+Forensic Module
+
+	
+
+✅
+
+
+
+
+Day 8
+
+	
+
+React Frontend Setup
+
+	
+
+✅
+
+
+
+
+Day 9
+
+	
+
+Docker & Validation
+
+	
+
+✅
+
+Completed Modules
+Day 1 — Foundation & Database
+
+Established the backend foundation.
+
+Implemented
+
+ASP.NET Core Web API setup
+
+PostgreSQL integration
+
+Entity Framework Core
+
+Case and User models
+
+Database migrations
+
+Outcome
+
+A working backend connected to PostgreSQL with persistent data storage.
+
+Day 2 — JWT Authentication
+
+Implemented secure user authentication.
+
+Features
+
+User Registration
+
+User Login
+
+BCrypt password hashing
+
+JWT token generation
+
+Protected API authentication
+
+Day 3 — Role-Based Access Control
+
+Implemented authorization for different police personnel.
+
+Roles
 
 ADMIN
+
 INVESTIGATING_OFFICER
+
 EVIDENCE_OFFICER
+
 FORENSIC_OFFICER
+
 SENIOR_OFFICER
 
-Role-based endpoint authorization implemented with [Authorize].
+Used ASP.NET Core's [Authorize] attribute to secure endpoints based on user roles.
 
 Day 4 — Case Management
 
-Implemented:
+Implemented complete crime case management.
 
-POST   /api/cases
-GET    /api/cases
-GET    /api/cases/{id}
-PUT    /api/cases/{id}
-DELETE /api/cases/{id}
-GET    /api/cases/search
+Endpoints
 
-Includes validation, duplicate case-number checking, search, and role restrictions.
+Method
+
+	
+
+Endpoint
+
+
+
+
+POST
+
+	
+
+/api/cases
+
+
+
+
+GET
+
+	
+
+/api/cases
+
+
+
+
+GET
+
+	
+
+/api/cases/{id}
+
+
+
+
+PUT
+
+	
+
+/api/cases/{id}
+
+
+
+
+DELETE
+
+	
+
+/api/cases/{id}
+
+
+
+
+GET
+
+	
+
+/api/cases/search
+
+Features
+
+Case creation
+
+Updates
+
+Search functionality
+
+Duplicate case-number validation
+
+Role restrictions
 
 Day 5 — Evidence Management
-Evidence model and Case–Evidence relationship
+
+Implemented complete evidence management.
+
+Features
+
+Evidence model
+
+Case–Evidence relationship
+
 PostgreSQL migration
+
 Evidence DTOs
+
 CRUD APIs
-Evidence validation
-Automatic evidence numbers
-Search and filtering by name, category, and status
 
-Examples:
+Automatic evidence numbering
 
+Validation
+
+Search and filtering
+
+Example Requests
 GET /api/Evidence?search=Knife
 GET /api/Evidence?category=Weapon
 GET /api/Evidence?status=Collected
 
-All core Evidence APIs were successfully tested through Swagger.
-Day 1 — Foundation
-ASP.NET Core Web API setup
-PostgreSQL database integration
-Entity Framework Core
-Case and User models
-Database migrations
-Day 2 — Authentication
-User registration and login
-BCrypt password hashing
-JWT token generation
-Protected API authentication
-Day 3 — RBAC
+All evidence APIs were successfully verified using Swagger.
 
-Implemented roles:
+Day 6 — Chain of Custody
 
-ADMIN
-INVESTIGATING_OFFICER
-EVIDENCE_OFFICER
-FORENSIC_OFFICER
-SENIOR_OFFICER
+Implemented a complete audit trail for evidence transfers.
 
-Role-based endpoint authorization implemented with [Authorize].
+Features
 
-Day 4 — Case Management
+ChainOfCustody entity
 
-Implemented:
+One-to-many relationship with Evidence
 
-POST   /api/cases
-GET    /api/cases
-GET    /api/cases/{id}
-PUT    /api/cases/{id}
-DELETE /api/cases/{id}
-GET    /api/cases/search
+EF Core migration
 
-Includes validation, duplicate case-number checking, search, and role restrictions.
+Service layer
 
-Day 5 — Evidence Management
-Evidence model and Case–Evidence relationship
-PostgreSQL migration
-Evidence DTOs
-CRUD APIs
-Evidence validation
-Automatic evidence numbers
-Search and filtering by name, category, and status
+DTOs
 
-Examples:
+JWT protection
 
-GET /api/Evidence?search=Knife
-GET /api/Evidence?category=Weapon
-GET /api/Evidence?status=Collected
+Role authorization
 
-All core Evidence APIs were successfully tested through Swagger.
+Automatic UTC timestamps
 
-Day 6 – Chain of Custody
+Business Rules
 
-Implemented a complete Chain of Custody module to maintain a secure audit trail of evidence transfers throughout an investigation.
+Invalid evidence IDs rejected
 
-Features Implemented
+Self-transfers prevented
 
-Added ChainOfCustody entity with a one-to-many relationship to Evidence.
+Empty actions rejected
 
-Created PostgreSQL table using EF Core Migration.
+Proper HTTP responses returned
 
-Built Service Layer (IChainOfCustodyService and ChainOfCustodyService) for business logic.
-
-Added request and response DTOs for secure data transfer.
-
-Created protected REST APIs using JWT Authentication and Role-Based Authorization.
-
-Implemented automatic UTC timestamp generation for every custody event.
-
-Added business validations:
-
-Prevent invalid evidence references.
-
-Prevent self-transfers (FromUserId and ToUserId cannot be the same).
-
-Reject empty actions.
-
-Returned proper HTTP status codes (201, 400, 401, 403, 404).
-
-Database Changes
-
-New table: ChainOfCustodies
+Database Table
 
 Column
 
@@ -190,7 +377,7 @@ FromUserId
 
 	
 
-Previous holder
+Previous Holder
 
 
 
@@ -199,7 +386,7 @@ ToUserId
 
 	
 
-New holder
+New Holder
 
 
 
@@ -208,7 +395,7 @@ Action
 
 	
 
-Custody action
+Custody Action
 
 
 
@@ -217,7 +404,7 @@ Location
 
 	
 
-Transfer location
+Transfer Location
 
 
 
@@ -226,7 +413,7 @@ Notes
 
 	
 
-Additional remarks
+Additional Remarks
 
 
 
@@ -235,7 +422,7 @@ Timestamp
 
 	
 
-Auto-generated UTC timestamp
+Auto-generated UTC Time
 
 API Endpoints
 
@@ -244,10 +431,6 @@ Method
 	
 
 Endpoint
-
-	
-
-Purpose
 
 
 
@@ -258,10 +441,6 @@ POST
 
 /api/ChainOfCustody
 
-	
-
-Create a custody record
-
 
 
 
@@ -270,10 +449,6 @@ GET
 	
 
 /api/ChainOfCustody/{id}
-
-	
-
-Get a single custody record
 
 
 
@@ -284,27 +459,21 @@ GET
 
 /api/ChainOfCustody/evidence/{evidenceId}
 
-	
+Validation Tested
 
-Get the complete custody timeline
+201 Created
 
-Testing Completed
+200 OK
 
-201 Created for successful custody creation.
+400 Bad Request
 
-200 OK for timeline and single-record retrieval.
+401 Unauthorized
 
-404 Not Found for invalid evidence IDs.
+403 Forbidden
 
-400 Bad Request for validation failures.
+404 Not Found
 
-401 Unauthorized for requests without JWT.
-
-403 Forbidden for unauthorized roles.
-
-Verified data persistence in PostgreSQL.
-
-Project Structure Added
+Project Structure
 Models/
  └── ChainOfCustody.cs
 
@@ -321,63 +490,162 @@ Services/
 
 Controllers/
  └── ChainOfCustodyController.cs
+Day 7 — Forensic Examination Module
 
-
- Day 7 – Forensic Module ✅
-
-Implemented the Forensic Examination & Document Management module with secure JWT authentication.
+Implemented forensic examination and document management.
 
 Features
 
-Create forensic examinations linked to evidence.
+Create forensic examinations
 
-View and update examination records.
+Update examination records
 
-Upload forensic documents (PDF/images).
+Upload forensic documents
 
-Retrieve uploaded documents.
+Retrieve uploaded documents
 
-Fully tested using Swagger.
+JWT-secured endpoints
 
 Endpoints
 
-POST /api/Forensic
+Method
 
-GET /api/Forensic/{id}
+	
 
-GET /api/Forensic/evidence/{evidenceId}
-
-PUT /api/Forensic/{id}
-
-POST /api/Forensic/documents/upload
-
-GET /api/Forensic/{id}/documents
+Endpoint
 
 
-Docker Setup (Day 9)
 
-Containerized the Crime Evidence Chain of Custody API using Docker for a consistent development and deployment environment.
 
-What I implemented
+POST
 
-Multi-stage Dockerfile using .NET 8 SDK and ASP.NET Runtime.
+	
 
-Optimized builds with .dockerignore (bin/, obj/ excluded).
+/api/Forensic
 
-Docker image creation and container deployment.
 
-Port mapping (localhost:5087 → container:8080).
 
-Added docker-compose.yml for simplified multi-container setup.
 
-Verified the API by running Swagger inside the Docker container.
+GET
 
-Docker Commands Used
+	
+
+/api/Forensic/{id}
+
+
+
+
+GET
+
+	
+
+/api/Forensic/evidence/{evidenceId}
+
+
+
+
+PUT
+
+	
+
+/api/Forensic/{id}
+
+
+
+
+POST
+
+	
+
+/api/Forensic/documents/upload
+
+
+
+
+GET
+
+	
+
+/api/Forensic/{id}/documents
+
+All endpoints were verified through Swagger.
+
+Day 8 — React Frontend Setup
+
+Prepared the frontend foundation using React and Vite.
+
+Setup Completed
+
+React project initialized
+
+Vite configuration
+
+Project structure
+
+Initial dashboard setup
+
+Frontend integrated into repository
+
+Day 9 — Docker Support & Validation
+
+Containerized the backend for consistent deployment.
+
+Docker Features
+
+Multi-stage Dockerfile
+
+.dockerignore
+
+Docker image creation
+
+Container deployment
+
+Port mapping
+
+Docker Compose support
+
+Swagger verification inside Docker
+
+Dockerfile Highlights
+
+.NET 8 SDK build stage
+
+ASP.NET Runtime stage
+
+Optimized production image
+
+Published application copied into runtime image
+
+Docker Commands
 docker build -t crime-evidence-api .
 docker run -d --name crime-api -p 5087:8080 crime-evidence-api
 docker ps
 docker images
 Docker Workflow
 
-This setup ensures the application runs consistently across different environments without requiring a local .NET installation on the deployment machine.
+The API runs inside a Docker container on localhost:5087, while the application listens internally on port 8080.
+
+API Documentation
+
+Swagger UI is available during local development.
+
+http://localhost:5087/swagger
+Project Structure
+CrimeEvidenceSystem/
+│
+├── backend/
+│   └── CrimeEvidence.API/
+│       ├── Controllers/
+│       ├── DTOs/
+│       ├── Models/
+│       ├── Services/
+│       ├── Interfaces/
+│       ├── Filters/
+│       ├── Middleware/
+│       ├── Dockerfile
+│       └── .dockerignore
+│
+├── frontend/
+│
+└── docker-compose.yml
 
