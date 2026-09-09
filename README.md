@@ -1,638 +1,137 @@
 Crime Evidence Management System
-
-A secure Crime Evidence Management Backend built with C#, ASP.NET Core Web API, PostgreSQL, Entity Framework Core, JWT Authentication, and Docker. The system enables law enforcement agencies to manage crime cases, evidence, chain of custody records, and forensic examinations through a secure REST API.
-
+> A secure Crime Evidence Management System built with C#, ASP.NET Core Web API, PostgreSQL, Entity Framework Core, JWT Authentication, and Docker.
 Project Overview
-
 This project simulates a real-world digital evidence management platform used by police departments and forensic laboratories. It focuses on secure authentication, role-based access control, complete evidence tracking, and a verifiable chain of custody.
-
-Tech Stack
-
-C# / .NET 8
-
-PostgreSQL
-
-Entity Framework Core
-
+Key Features
 JWT Authentication
-
-Swagger
-
-Docker
-
-Project Architecture
-Development Progress
-
-Day
-
-	
-
-Module
-
-	
-
-Status
-
-
-
-
-Day 1
-
-	
-
-Foundation & Database
-
-	
-
-✅
-
-
-
-
-Day 2
-
-	
-
-JWT Authentication
-
-	
-
-✅
-
-
-
-
-Day 3
-
-	
-
-Role-Based Access Control
-
-	
-
-✅
-
-
-
-
-Day 4
-
-	
-
-Case Management
-
-	
-
-✅
-
-
-
-
-Day 5
-
-	
-
-Evidence Management
-
-	
-
-✅
-
-
-
-
-Day 6
-
-	
-
+Role-Based Access Control (RBAC)
+Crime Case Management
+Evidence Tracking
 Chain of Custody
-
-	
-
-✅
-
-
-
-
-Day 7
-
-	
-
-Forensic Module
-
-	
-
-✅
-
-
-
-
-Day 8
-
-	
-
-React Frontend Setup
-
-	
-
-✅
-
-
-
-
-Day 9
-
-	
-
-Docker & Validation
-
-	
-
-✅
-
+Forensic Examination
+Dockerized Deployment
+Swagger Documentation
+Tech Stack
+Technology	Purpose
+C# / .NET 8	Backend
+ASP.NET Core Web API	REST API
+PostgreSQL	Database
+Entity Framework Core	ORM
+JWT	Authentication
+Swagger	API Testing
+Docker	Containerization
+React (Vite)	Frontend
+Development Progress
+Day	Module	Status
+Day 1	Foundation & Database	✅
+Day 2	JWT Authentication	✅
+Day 3	RBAC	✅
+Day 4	Case Management	✅
+Day 5	Evidence Management	✅
+Day 6	Chain of Custody	✅
+Day 7	Forensic Module	✅
+Day 8	React Frontend Setup	✅
+Day 9	Docker & Validation	✅
 Completed Modules
-Day 1 — Foundation & Database
-
-Established the backend foundation.
-
-Implemented
-
+Day 1 – Foundation & Database
 ASP.NET Core Web API setup
-
 PostgreSQL integration
-
-Entity Framework Core
-
+Entity Framework Core configuration
 Case and User models
-
 Database migrations
-
-Outcome
-
-A working backend connected to PostgreSQL with persistent data storage.
-
-Day 2 — JWT Authentication
-
-Implemented secure user authentication.
-
-Features
-
+Day 2 – JWT Authentication
 User Registration
-
 User Login
-
 BCrypt password hashing
-
 JWT token generation
-
 Protected API authentication
-
-Day 3 — Role-Based Access Control
-
-Implemented authorization for different police personnel.
-
-Roles
-
+Day 3 – Role-Based Access Control
+Supported roles:
 ADMIN
-
 INVESTIGATING_OFFICER
-
 EVIDENCE_OFFICER
-
 FORENSIC_OFFICER
-
 SENIOR_OFFICER
-
-Used ASP.NET Core's [Authorize] attribute to secure endpoints based on user roles.
-
-Day 4 — Case Management
-
-Implemented complete crime case management.
-
-Endpoints
-
-Method
-
-	
-
-Endpoint
-
-
-
-
-POST
-
-	
-
-/api/cases
-
-
-
-
-GET
-
-	
-
-/api/cases
-
-
-
-
-GET
-
-	
-
-/api/cases/{id}
-
-
-
-
-PUT
-
-	
-
-/api/cases/{id}
-
-
-
-
-DELETE
-
-	
-
-/api/cases/{id}
-
-
-
-
-GET
-
-	
-
-/api/cases/search
-
-Features
-
-Case creation
-
-Updates
-
+Endpoints secured with `[Authorize]`.
+Day 4 – Case Management
+Method	Endpoint
+POST	`/api/cases`
+GET	`/api/cases`
+GET	`/api/cases/{id}`
+PUT	`/api/cases/{id}`
+DELETE	`/api/cases/{id}`
+GET	`/api/cases/search`
+Features:
+Create and update cases
 Search functionality
-
 Duplicate case-number validation
-
 Role restrictions
-
-Day 5 — Evidence Management
-
-Implemented complete evidence management.
-
-Features
-
+Day 5 – Evidence Management
 Evidence model
-
 Case–Evidence relationship
-
-PostgreSQL migration
-
-Evidence DTOs
-
 CRUD APIs
-
 Automatic evidence numbering
-
-Validation
-
 Search and filtering
-
-Example Requests
+Example:
+```http
 GET /api/Evidence?search=Knife
 GET /api/Evidence?category=Weapon
 GET /api/Evidence?status=Collected
-
-All evidence APIs were successfully verified using Swagger.
-
-Day 6 — Chain of Custody
-
-Implemented a complete audit trail for evidence transfers.
-
-Features
-
+```
+Day 6 – Chain of Custody
+Features:
 ChainOfCustody entity
-
-One-to-many relationship with Evidence
-
-EF Core migration
-
 Service layer
-
 DTOs
-
 JWT protection
-
-Role authorization
-
 Automatic UTC timestamps
-
-Business Rules
-
-Invalid evidence IDs rejected
-
-Self-transfers prevented
-
-Empty actions rejected
-
-Proper HTTP responses returned
-
-Database Table
-
-Column
-
-	
-
-Purpose
-
-
-
-
-Id
-
-	
-
-Primary Key
-
-
-
-
-EvidenceId
-
-	
-
-Foreign Key
-
-
-
-
-FromUserId
-
-	
-
-Previous Holder
-
-
-
-
-ToUserId
-
-	
-
-New Holder
-
-
-
-
-Action
-
-	
-
-Custody Action
-
-
-
-
-Location
-
-	
-
-Transfer Location
-
-
-
-
-Notes
-
-	
-
-Additional Remarks
-
-
-
-
-Timestamp
-
-	
-
-Auto-generated UTC Time
-
-API Endpoints
-
-Method
-
-	
-
-Endpoint
-
-
-
-
-POST
-
-	
-
-/api/ChainOfCustody
-
-
-
-
-GET
-
-	
-
-/api/ChainOfCustody/{id}
-
-
-
-
-GET
-
-	
-
-/api/ChainOfCustody/evidence/{evidenceId}
-
-Validation Tested
-
+Endpoints:
+Method	Endpoint
+POST	`/api/ChainOfCustody`
+GET	`/api/ChainOfCustody/{id}`
+GET	`/api/ChainOfCustody/evidence/{evidenceId}`
+Validation tested:
 201 Created
-
 200 OK
-
 400 Bad Request
-
 401 Unauthorized
-
 403 Forbidden
-
 404 Not Found
-
-Project Structure
-Models/
- └── ChainOfCustody.cs
-
-DTOs/
- └── ChainOfCustody/
-     ├── CreateCustodyDto.cs
-     └── CustodyResponseDto.cs
-
-Interfaces/
- └── IChainOfCustodyService.cs
-
-Services/
- └── ChainOfCustodyService.cs
-
-Controllers/
- └── ChainOfCustodyController.cs
-Day 7 — Forensic Examination Module
-
-Implemented forensic examination and document management.
-
-Features
-
+Day 7 – Forensic Module
+Features:
 Create forensic examinations
-
-Update examination records
-
-Upload forensic documents
-
-Retrieve uploaded documents
-
-JWT-secured endpoints
-
-Endpoints
-
-Method
-
-	
-
-Endpoint
-
-
-
-
-POST
-
-	
-
-/api/Forensic
-
-
-
-
-GET
-
-	
-
-/api/Forensic/{id}
-
-
-
-
-GET
-
-	
-
-/api/Forensic/evidence/{evidenceId}
-
-
-
-
-PUT
-
-	
-
-/api/Forensic/{id}
-
-
-
-
-POST
-
-	
-
-/api/Forensic/documents/upload
-
-
-
-
-GET
-
-	
-
-/api/Forensic/{id}/documents
-
-All endpoints were verified through Swagger.
-
-Day 8 — React Frontend Setup
-
-Prepared the frontend foundation using React and Vite.
-
-Setup Completed
-
-React project initialized
-
-Vite configuration
-
-Project structure
-
-Initial dashboard setup
-
+Update records
+Upload documents
+Retrieve documents
+Endpoints:
+Method	Endpoint
+POST	`/api/Forensic`
+GET	`/api/Forensic/{id}`
+GET	`/api/Forensic/evidence/{evidenceId}`
+PUT	`/api/Forensic/{id}`
+POST	`/api/Forensic/documents/upload`
+GET	`/api/Forensic/{id}/documents`
+Day 8 – React Frontend Setup
+React + Vite setup
+Initial dashboard structure
 Frontend integrated into repository
-
-Day 9 — Docker Support & Validation
-
-Containerized the backend for consistent deployment.
-
-Docker Features
-
+Day 9 – Docker Support & Validation
+Features:
 Multi-stage Dockerfile
-
-.dockerignore
-
+`.dockerignore`
 Docker image creation
-
-Container deployment
-
-Port mapping
-
 Docker Compose support
-
-Swagger verification inside Docker
-
-Dockerfile Highlights
-
-.NET 8 SDK build stage
-
-ASP.NET Runtime stage
-
-Optimized production image
-
-Published application copied into runtime image
-
-Docker Commands
+Port mapping (5087 → 8080)
+Commands:
+```bash
 docker build -t crime-evidence-api .
 docker run -d --name crime-api -p 5087:8080 crime-evidence-api
 docker ps
 docker images
-Docker Workflow
-
-The API runs inside a Docker container on localhost:5087, while the application listens internally on port 8080.
-
-API Documentation
-
-Swagger UI is available during local development.
-
-http://localhost:5087/swagger
+```
 Project Structure
+```text
 CrimeEvidenceSystem/
-│
 ├── backend/
 │   └── CrimeEvidence.API/
 │       ├── Controllers/
@@ -644,8 +143,23 @@ CrimeEvidenceSystem/
 │       ├── Middleware/
 │       ├── Dockerfile
 │       └── .dockerignore
-│
 ├── frontend/
-│
 └── docker-compose.yml
+```
+Running Locally
+Docker
+```bash
+docker build -t crime-evidence-api .
+docker run -d --name crime-api -p 5087:8080 crime-evidence-api
+```
+Swagger:
+```text
+http://localhost:5087/swagger
+```
+.NET CLI
+```bash
+dotnet restore
+dotnet build
+dotnet run
+```
 
