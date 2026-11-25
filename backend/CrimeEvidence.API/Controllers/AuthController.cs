@@ -25,44 +25,33 @@ public class AuthController : ControllerBase
         _configuration = configuration;
     }
 
-    
-
+    // POST: api/Auth/register
+    // Public registration is disabled.
     [HttpPost("register")]
-    public async Task<IActionResult> Register(RegisterRequest request)
+    public IActionResult Register()
     {
-        if (await _context.Users.AnyAsync(u => u.Email == request.Email))
-        {
-            return BadRequest(new
+        return StatusCode(
+            StatusCodes.Status403Forbidden,
+            new
             {
-                message = "Email already registered."
-            });
-        }
-
-        var user = new User
-        {
-            FullName = request.FullName,
-            Email = request.Email,
-            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
-            Role = request.Role
-        };
-
-        _context.Users.Add(user);
-
-        await _context.SaveChangesAsync();
-
-        return Ok(new
-        {
-            message = "User registered successfully.",
-            userId = user.Id,
-            role = user.Role
-        });
+                message = "Public registration is disabled. Contact your system administrator."
+            }
+        );
     }
 
-    
-
+    // POST: api/Auth/login
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)
     {
+        if (string.IsNullOrWhiteSpace(request.Email) ||
+            string.IsNullOrWhiteSpace(request.Password))
+        {
+            return Unauthorized(new
+            {
+                message = "Invalid email or password."
+            });
+        }
+
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Email == request.Email);
 
@@ -87,6 +76,24 @@ public class AuthController : ControllerBase
             });
         }
 
+        // Only approved internal system roles can log in.
+        var allowedRoles = new[]
+        {
+            "ADMIN",
+            "SENIOR_OFFICER",
+            "INVESTIGATING_OFFICER",
+            "EVIDENCE_OFFICER",
+            "FORENSIC_OFFICER"
+        };
+
+        if (!allowedRoles.Contains(user.Role))
+        {
+            return Unauthorized(new
+            {
+                message = "This account is not authorized to access the internal system."
+            });
+        }
+
         var token = GenerateJwtToken(user);
 
         return Ok(new
@@ -103,15 +110,25 @@ public class AuthController : ControllerBase
         });
     }
 
- 
     private string GenerateJwtToken(User user)
     {
         var jwtKey = _configuration["Jwt:Key"];
 
-        if (string.IsNullOrEmpty(jwtKey))
+        if (string.IsNullOrWhiteSpace(jwtKey))
         {
             throw new InvalidOperationException(
                 "JWT Key is not configured."
+            );
+        }
+
+        var issuer = _configuration["Jwt:Issuer"];
+        var audience = _configuration["Jwt:Audience"];
+
+        if (string.IsNullOrWhiteSpace(issuer) ||
+            string.IsNullOrWhiteSpace(audience))
+        {
+            throw new InvalidOperationException(
+                "JWT Issuer or Audience is not configured."
             );
         }
 
@@ -125,6 +142,11 @@ public class AuthController : ControllerBase
             new Claim(
                 JwtRegisteredClaimNames.Email,
                 user.Email
+            ),
+
+            new Claim(
+                ClaimTypes.NameIdentifier,
+                user.Id.ToString()
             ),
 
             new Claim(
@@ -150,9 +172,14 @@ public class AuthController : ControllerBase
         var expiryMinutes = _configuration
             .GetValue<int>("Jwt:ExpiryMinutes");
 
+        if (expiryMinutes <= 0)
+        {
+            expiryMinutes = 60;
+        }
+
         var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Audience"],
+            issuer: issuer,
+            audience: audience,
             claims: claims,
             expires: DateTime.UtcNow.AddMinutes(expiryMinutes),
             signingCredentials: credentials

@@ -25,3 +25,18 @@ secrets.json
 # OS
 .DS_Store
 Thumbs.db
+
+# Frontend dependencies and build output
+**/node_modules/
+**/dist/
+
+# Private evidence and forensic storage
+**/PrivateStorage/
+
+# Project backup archives
+*.zip
+
+# Local secrets
+.env
+.env.*
+! .env.example

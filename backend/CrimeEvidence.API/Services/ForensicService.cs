@@ -1,3 +1,4 @@
+
 using Microsoft.EntityFrameworkCore;
 using CrimeEvidence.API.Data;
 using CrimeEvidence.API.DTOs.Forensic;
@@ -12,15 +13,31 @@ namespace CrimeEvidence.API.Services
         private readonly ApplicationDbContext _context;
         private readonly IWebHostEnvironment _environment;
 
-        public ForensicService(ApplicationDbContext context, IWebHostEnvironment environment)
+        private const long MaxFileSize = 10 * 1024 * 1024;
+
+        private static readonly HashSet<string> AllowedExtensions =
+            new(StringComparer.OrdinalIgnoreCase)
+            {
+                ".pdf",
+                ".jpg",
+                ".jpeg",
+                ".png"
+            };
+
+        public ForensicService(
+            ApplicationDbContext context,
+            IWebHostEnvironment environment)
         {
             _context = context;
             _environment = environment;
         }
 
-        public async Task<ForensicResponseDto> CreateExaminationAsync(CreateForensicDto dto, string examinerId)
+        public async Task<ForensicResponseDto> CreateExaminationAsync(
+            CreateForensicDto dto,
+            string examinerId)
         {
-            var evidence = await _context.Evidences.FindAsync(dto.EvidenceId);
+            var evidence = await _context.Evidences
+                .FindAsync(dto.EvidenceId);
 
             if (evidence == null)
                 throw new Exception("Evidence not found.");
@@ -42,8 +59,8 @@ namespace CrimeEvidence.API.Services
             return MapToDto(examination);
         }
 
-        // NEW - Get all examinations
-        public async Task<IEnumerable<ForensicResponseDto>> GetAllExaminationsAsync()
+        public async Task<IEnumerable<ForensicResponseDto>>
+            GetAllExaminationsAsync()
         {
             return await _context.ForensicExaminations
                 .OrderByDescending(f => f.StartedAt)
@@ -73,7 +90,8 @@ namespace CrimeEvidence.API.Services
             return MapToDto(examination);
         }
 
-        public async Task<IEnumerable<ForensicResponseDto>> GetByEvidenceAsync(int evidenceId)
+        public async Task<IEnumerable<ForensicResponseDto>>
+            GetByEvidenceAsync(int evidenceId)
         {
             return await _context.ForensicExaminations
                 .Where(f => f.EvidenceId == evidenceId)
@@ -92,9 +110,12 @@ namespace CrimeEvidence.API.Services
                 .ToListAsync();
         }
 
-        public async Task<ForensicResponseDto?> UpdateExaminationAsync(int id, UpdateForensicDto dto)
+        public async Task<ForensicResponseDto?> UpdateExaminationAsync(
+            int id,
+            UpdateForensicDto dto)
         {
-            var examination = await _context.ForensicExaminations.FindAsync(id);
+            var examination =
+                await _context.ForensicExaminations.FindAsync(id);
 
             if (examination == null)
                 return null;
@@ -103,7 +124,6 @@ namespace CrimeEvidence.API.Services
             examination.ReportPath = dto.ReportPath;
             examination.Status = dto.Status;
 
-            // Mark completion automatically
             if (dto.Status == "Completed")
                 examination.CompletedAt = DateTime.UtcNow;
 
@@ -112,45 +132,98 @@ namespace CrimeEvidence.API.Services
             return MapToDto(examination);
         }
 
-        public async Task<ForensicDocumentDto> UploadDocumentAsync(UploadForensicDocumentDto dto)
+        public async Task<ForensicDocumentDto> UploadDocumentAsync(
+            UploadForensicDocumentDto dto)
         {
-            var uploadFolder = Path.Combine(_environment.WebRootPath ?? "wwwroot", "uploads");
+            if (dto.File == null || dto.File.Length == 0)
+                throw new ArgumentException("Please select a valid document.");
 
-            if (!Directory.Exists(uploadFolder))
-                Directory.CreateDirectory(uploadFolder);
+            if (dto.File.Length > MaxFileSize)
+                throw new ArgumentException(
+                    "File size cannot exceed 10 MB.");
 
-            var uniqueFileName = $"{Guid.NewGuid()}_{dto.File.FileName}";
-            var filePath = Path.Combine(uploadFolder, uniqueFileName);
+            var extension = Path.GetExtension(dto.File.FileName);
 
-            using (var stream = new FileStream(filePath, FileMode.Create))
+            if (string.IsNullOrWhiteSpace(extension) ||
+                !AllowedExtensions.Contains(extension))
             {
-                await dto.File.CopyToAsync(stream);
+                throw new ArgumentException(
+                    "Only PDF, JPG, JPEG and PNG files are allowed.");
             }
 
-            var document = new ForensicDocument
-            {
-                FileName = dto.File.FileName,
-                FilePath = filePath,
-                FileType = dto.File.ContentType,
-                ForensicExaminationId = dto.ForensicExaminationId
-            };
+            // Verify examination exists before accepting the document.
+            var examinationExists =
+                await _context.ForensicExaminations.AnyAsync(
+                    f => f.Id == dto.ForensicExaminationId);
 
-            _context.ForensicDocuments.Add(document);
-            await _context.SaveChangesAsync();
+            if (!examinationExists)
+                throw new ArgumentException(
+                    "Forensic examination not found.");
 
-            return new ForensicDocumentDto
+            // Private storage outside wwwroot.
+            var contentRoot = _environment.ContentRootPath;
+
+            var uploadFolder = Path.Combine(
+                contentRoot,
+                "PrivateStorage",
+                "ForensicDocuments");
+
+            Directory.CreateDirectory(uploadFolder);
+
+            // Never use the original filename for physical storage.
+            var uniqueFileName =
+                $"{Guid.NewGuid():N}{extension.ToLowerInvariant()}";
+
+            var filePath = Path.Combine(
+                uploadFolder,
+                uniqueFileName);
+
+            try
             {
-                Id = document.Id,
-                FileName = document.FileName,
-                FileType = document.FileType,
-                UploadedAt = document.UploadedAt
-            };
+                await using (var stream = new FileStream(
+                    filePath,
+                    FileMode.CreateNew,
+                    FileAccess.Write,
+                    FileShare.None))
+                {
+                    await dto.File.CopyToAsync(stream);
+                }
+
+                var document = new ForensicDocument
+                {
+                    FileName = Path.GetFileName(dto.File.FileName),
+                    FilePath = filePath,
+                    FileType = dto.File.ContentType,
+                    ForensicExaminationId =
+                        dto.ForensicExaminationId
+                };
+
+                _context.ForensicDocuments.Add(document);
+                await _context.SaveChangesAsync();
+
+                return new ForensicDocumentDto
+                {
+                    Id = document.Id,
+                    FileName = document.FileName,
+                    FileType = document.FileType,
+                    UploadedAt = document.UploadedAt
+                };
+            }
+            catch
+            {
+                if (System.IO.File.Exists(filePath))
+                    System.IO.File.Delete(filePath);
+
+                throw;
+            }
         }
 
-        public async Task<List<ForensicDocumentDto>> GetDocumentsAsync(int forensicExaminationId)
+        public async Task<List<ForensicDocumentDto>>
+            GetDocumentsAsync(int forensicExaminationId)
         {
             return await _context.ForensicDocuments
-                .Where(d => d.ForensicExaminationId == forensicExaminationId)
+                .Where(d =>
+                    d.ForensicExaminationId == forensicExaminationId)
                 .Select(d => new ForensicDocumentDto
                 {
                     Id = d.Id,
@@ -161,7 +234,8 @@ namespace CrimeEvidence.API.Services
                 .ToListAsync();
         }
 
-        private static ForensicResponseDto MapToDto(ForensicExamination examination)
+        private static ForensicResponseDto MapToDto(
+            ForensicExamination examination)
         {
             return new ForensicResponseDto
             {

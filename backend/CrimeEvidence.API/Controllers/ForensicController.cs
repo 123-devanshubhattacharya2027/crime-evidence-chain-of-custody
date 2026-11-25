@@ -1,3 +1,5 @@
+
+using CrimeEvidence.API.Constants;
 using CrimeEvidence.API.DTOs.Forensic;
 using CrimeEvidence.API.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -18,27 +20,54 @@ namespace CrimeEvidence.API.Controllers
             _forensicService = forensicService;
         }
 
-        // Test 1 - Create Forensic Examination
+        // POST: api/Forensic
+        // Only Admin, Senior Officer and Forensic Officer
         [HttpPost]
-        public async Task<IActionResult> CreateExamination([FromBody] CreateForensicDto dto)
+        [Authorize(Roles =
+            Roles.Admin + "," +
+            Roles.SeniorOfficer + "," +
+            Roles.ForensicOfficer)]
+        public async Task<IActionResult> CreateExamination(
+            [FromBody] CreateForensicDto dto)
         {
-            var examinerId = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "Unknown";
+            var examinerId = User.FindFirstValue(
+                ClaimTypes.NameIdentifier);
 
-            var result = await _forensicService.CreateExaminationAsync(dto, examinerId);
+            if (string.IsNullOrWhiteSpace(examinerId))
+                return Unauthorized("Examiner identity not found.");
+
+            var result =
+                await _forensicService.CreateExaminationAsync(
+                    dto, examinerId);
 
             return Ok(result);
         }
 
-        // Test 2 - Get All Forensic Examinations
+        // GET: api/Forensic
+        // All five roles can view examinations
         [HttpGet]
+        [Authorize(Roles =
+            Roles.Admin + "," +
+            Roles.SeniorOfficer + "," +
+            Roles.InvestigatingOfficer + "," +
+            Roles.EvidenceOfficer + "," +
+            Roles.ForensicOfficer)]
         public async Task<IActionResult> GetAll()
         {
-            var result = await _forensicService.GetAllExaminationsAsync();
+            var result =
+                await _forensicService.GetAllExaminationsAsync();
+
             return Ok(result);
         }
 
-        // Get Examination by ID
-        [HttpGet("{id}")]
+        // GET: api/Forensic/5
+        [HttpGet("{id:int}")]
+        [Authorize(Roles =
+            Roles.Admin + "," +
+            Roles.SeniorOfficer + "," +
+            Roles.InvestigatingOfficer + "," +
+            Roles.EvidenceOfficer + "," +
+            Roles.ForensicOfficer)]
         public async Task<IActionResult> GetById(int id)
         {
             var result = await _forensicService.GetByIdAsync(id);
@@ -49,19 +78,35 @@ namespace CrimeEvidence.API.Controllers
             return Ok(result);
         }
 
-        // Get Examinations by Evidence ID
-        [HttpGet("evidence/{evidenceId}")]
+        // GET: api/Forensic/evidence/5
+        [HttpGet("evidence/{evidenceId:int}")]
+        [Authorize(Roles =
+            Roles.Admin + "," +
+            Roles.SeniorOfficer + "," +
+            Roles.InvestigatingOfficer + "," +
+            Roles.EvidenceOfficer + "," +
+            Roles.ForensicOfficer)]
         public async Task<IActionResult> GetByEvidence(int evidenceId)
         {
-            var result = await _forensicService.GetByEvidenceAsync(evidenceId);
+            var result =
+                await _forensicService.GetByEvidenceAsync(evidenceId);
+
             return Ok(result);
         }
 
-        // Test 3 - Update Examination
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateForensicDto dto)
+        // PUT: api/Forensic/5
+        // Only Admin, Senior Officer and Forensic Officer
+        [HttpPut("{id:int}")]
+        [Authorize(Roles =
+            Roles.Admin + "," +
+            Roles.SeniorOfficer + "," +
+            Roles.ForensicOfficer)]
+        public async Task<IActionResult> Update(
+            int id,
+            [FromBody] UpdateForensicDto dto)
         {
-            var result = await _forensicService.UpdateExaminationAsync(id, dto);
+            var result =
+                await _forensicService.UpdateExaminationAsync(id, dto);
 
             if (result == null)
                 return NotFound();
@@ -69,19 +114,40 @@ namespace CrimeEvidence.API.Controllers
             return Ok(result);
         }
 
-        // Test 5 - Upload Document
+        // POST: api/Forensic/documents/upload
+        // Only Admin, Senior Officer and Forensic Officer
         [HttpPost("documents/upload")]
-        public async Task<IActionResult> UploadDocument([FromForm] UploadForensicDocumentDto dto)
+        [Authorize(Roles =
+            Roles.Admin + "," +
+            Roles.SeniorOfficer + "," +
+            Roles.ForensicOfficer)]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadDocument(
+            [FromForm] UploadForensicDocumentDto dto)
         {
-            var result = await _forensicService.UploadDocumentAsync(dto);
+            if (dto.File == null || dto.File.Length == 0)
+                return BadRequest("Please select a valid document.");
+
+            var result =
+                await _forensicService.UploadDocumentAsync(dto);
+
             return Ok(result);
         }
 
-        // Get Documents for an Examination
-        [HttpGet("{id}/documents")]
+        // GET: api/Forensic/5/documents
+        // All five roles can view document metadata
+        [HttpGet("{id:int}/documents")]
+        [Authorize(Roles =
+            Roles.Admin + "," +
+            Roles.SeniorOfficer + "," +
+            Roles.InvestigatingOfficer + "," +
+            Roles.EvidenceOfficer + "," +
+            Roles.ForensicOfficer)]
         public async Task<IActionResult> GetDocuments(int id)
         {
-            var result = await _forensicService.GetDocumentsAsync(id);
+            var result =
+                await _forensicService.GetDocumentsAsync(id);
+
             return Ok(result);
         }
     }

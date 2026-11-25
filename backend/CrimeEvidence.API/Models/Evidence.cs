@@ -1,3 +1,4 @@
+
 using System.ComponentModel.DataAnnotations;
 
 namespace CrimeEvidence.API.Models
@@ -34,6 +35,25 @@ namespace CrimeEvidence.API.Models
 
         // Navigation Property
         public Case Case { get; set; } = null!;
+
+        // Evidence File Metadata
+        [MaxLength(255)]
+        public string? FileName { get; set; }
+
+        [MaxLength(255)]
+        public string? StoredFileName { get; set; }
+
+        [MaxLength(500)]
+        public string? FilePath { get; set; }
+
+        [MaxLength(100)]
+        public string? ContentType { get; set; }
+
+        public long? FileSize { get; set; }
+
+        public DateTime? UploadedAt { get; set; }
+
+        public int? UploadedBy { get; set; }
 
         // Chain of Custody
         public ICollection<ChainOfCustody> ChainOfCustodies { get; set; }

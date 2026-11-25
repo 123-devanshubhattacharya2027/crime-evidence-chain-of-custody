@@ -5,13 +5,8 @@ const USER_KEY = "crime_user";
 
 export async function login(data) {
   const response = await api.post("/auth/login", data);
-
-  const token = response.data.token;
-  const user = response.data.user;
-
- localStorage.setItem(TOKEN_KEY, response.data.token);
-localStorage.setItem(USER_KEY, JSON.stringify(response.data.user));
-
+  localStorage.setItem(TOKEN_KEY, response.data.token);
+  localStorage.setItem(USER_KEY, JSON.stringify(response.data.user));
   return response.data;
 }
 
@@ -30,10 +25,15 @@ export function getToken() {
 }
 
 export function getCurrentUser() {
-  const user = localStorage.getItem(USER_KEY);
-  return user ? JSON.parse(user) : null;
+  try {
+    const user = localStorage.getItem(USER_KEY);
+    return user ? JSON.parse(user) : null;
+  } catch {
+    localStorage.removeItem(USER_KEY);
+    return null;
+  }
 }
 
 export function isAuthenticated() {
-  return !!getToken();
+  return Boolean(getToken());
 }

@@ -17,7 +17,7 @@ namespace CrimeEvidence.API.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.11")
+                .HasAnnotation("ProductVersion", "8.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -130,6 +130,10 @@ namespace CrimeEvidence.API.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<string>("ContentType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text");
@@ -138,6 +142,17 @@ namespace CrimeEvidence.API.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
+
+                    b.Property<string>("FileName")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("FilePath")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<long?>("FileSize")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -151,6 +166,16 @@ namespace CrimeEvidence.API.Migrations
                     b.Property<string>("StorageLocation")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<string>("StoredFileName")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime?>("UploadedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int?>("UploadedBy")
+                        .HasColumnType("integer");
 
                     b.HasKey("Id");
 

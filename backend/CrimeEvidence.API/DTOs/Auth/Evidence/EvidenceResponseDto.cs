@@ -1,3 +1,4 @@
+
 namespace CrimeEvidence.API.DTOs.Evidence
 {
     public class EvidenceResponseDto
@@ -21,5 +22,14 @@ namespace CrimeEvidence.API.DTOs.Evidence
         public string StorageLocation { get; set; } = "";
 
         public int CaseId { get; set; }
+
+        // Evidence File Metadata
+        public bool HasFile { get; set; }
+
+        public string? FileName { get; set; }
+
+        public long? FileSize { get; set; }
+
+        public DateTime? UploadedAt { get; set; }
     }
 }

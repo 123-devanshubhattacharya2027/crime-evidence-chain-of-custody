@@ -1,3 +1,4 @@
+
 using System.ComponentModel.DataAnnotations;
 
 namespace CrimeEvidence.API.DTOs.ChainOfCustody
@@ -7,10 +8,6 @@ namespace CrimeEvidence.API.DTOs.ChainOfCustody
         [Required]
         [Range(1, int.MaxValue)]
         public int EvidenceId { get; set; }
-
-        [Required]
-        [Range(1, int.MaxValue)]
-        public int FromUserId { get; set; }
 
         [Required]
         [Range(1, int.MaxValue)]
